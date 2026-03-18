@@ -1,7 +1,7 @@
 import React, { useMemo, useRef, useState } from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
 
-export default function FenoClinicApp() {
+export default function App() {
   const reportCardRef = useRef(null);
 
   const [patient, setPatient] = useState({
