@@ -216,12 +216,13 @@ export default function App() {
   });
 
   const [scenarios, setScenarios] = useState([
-    { fev1Pre: "", fev1Post: "", eos: "" },
-    { fev1Pre: "", fev1Post: "", eos: "" },
-    { fev1Pre: "", fev1Post: "", eos: "" },
+    { fev1Pre: "", fev1Post: "", eos: "", directFeno: "" },
+    { fev1Pre: "", fev1Post: "", eos: "", directFeno: "" },
+    { fev1Pre: "", fev1Post: "", eos: "", directFeno: "" },
   ]);
 
   const [modelType, setModelType] = useState("auto");
+  const [measurementMode, setMeasurementMode] = useState("both");
 
   const toNum = (v) => {
     const n = Number(v);
@@ -249,45 +250,80 @@ export default function App() {
     const fev1Pre = toNum(s.fev1Pre);
     const fev1Post = toNum(s.fev1Post);
     const eos = toNum(s.eos);
+    const directFeno = toNum(s.directFeno);
     const atopia = patient.atopia ? 1 : 0;
     const rinitis = patient.rinitis ? 1 : 0;
     const icsDose = patient.usaICS ? toNum(patient.icsDose) || 0 : 0;
     const S = icsDose / 200;
 
-    if (fev1Pre === null || fev1Post === null || fev1Pre <= 0) {
-      return { valid: false };
-    }
+    const hasDirect = directFeno !== null && directFeno >= 0;
+    const hasEquationInputs = fev1Pre !== null && fev1Post !== null && fev1Pre > 0;
 
-    const bdr = ((fev1Post - fev1Pre) / fev1Pre) * 100;
-    const F = fev1Pre / 10;
-
-    const logFenoA = 2.10 + 0.06 * bdr - 0.05 * F + 0.25 * atopia + 0.15 * rinitis - 0.22 * S;
-    const fenoA = Math.exp(logFenoA);
-
+    let bdr = null;
+    let fenoA = null;
     let fenoB = null;
-    if (eos !== null && eos >= 0) {
-      const E = eos / 100;
-      const logFenoB = 1.95 + 0.05 * bdr - 0.04 * F + 0.22 * atopia + 0.12 * rinitis - 0.20 * S + 0.11 * E;
-      fenoB = Math.exp(logFenoB);
+
+    if (hasEquationInputs) {
+      bdr = ((fev1Post - fev1Pre) / fev1Pre) * 100;
+      const F = fev1Pre / 10;
+      const logFenoA = 2.10 + 0.06 * bdr - 0.05 * F + 0.25 * atopia + 0.15 * rinitis - 0.22 * S;
+      fenoA = Math.exp(logFenoA);
+
+      if (eos !== null && eos >= 0) {
+        const E = eos / 100;
+        const logFenoB = 1.95 + 0.05 * bdr - 0.04 * F + 0.22 * atopia + 0.12 * rinitis - 0.20 * S + 0.11 * E;
+        fenoB = Math.exp(logFenoB);
+      }
     }
 
-    let selected = fenoA;
-    let selectedModel = "Modelo clínico básico";
+    let equationValue = fenoA;
+    let equationModel = "Modelo clínico básico";
     if (modelType === "eos" && fenoB !== null) {
-      selected = fenoB;
-      selectedModel = "Modelo con eosinófilos";
+      equationValue = fenoB;
+      equationModel = "Modelo con eosinófilos";
     } else if (modelType === "auto" && fenoB !== null) {
-      selected = fenoB;
-      selectedModel = "Modelo con eosinófilos";
+      equationValue = fenoB;
+      equationModel = "Modelo con eosinófilos";
+    }
+
+    let selected = null;
+    let selectedSource = "";
+
+    if (measurementMode === "direct") {
+      if (hasDirect) {
+        selected = directFeno;
+        selectedSource = "Medición directa";
+      }
+    } else if (measurementMode === "estimated") {
+      if (equationValue !== null) {
+        selected = equationValue;
+        selectedSource = equationModel;
+      }
+    } else {
+      if (hasDirect && equationValue !== null) {
+        selected = directFeno;
+        selectedSource = `Medición directa (estimado por ecuación: ${equationValue.toFixed(1)} ppb)`;
+      } else if (hasDirect) {
+        selected = directFeno;
+        selectedSource = "Medición directa";
+      } else if (equationValue !== null) {
+        selected = equationValue;
+        selectedSource = equationModel;
+      }
     }
 
     return {
-      valid: true,
+      valid: selected !== null,
+      hasDirect,
+      hasEquationInputs,
+      directFeno,
       bdr,
       fenoA,
       fenoB,
+      equationValue,
+      equationModel,
       selected,
-      selectedModel,
+      selectedSource,
       classSelected: classifyFeno(selected),
     };
   }
@@ -319,6 +355,8 @@ export default function App() {
       results.map((r, i) => ({
         name: `Prueba ${i + 1}`,
         FeNO: r.valid ? Number(r.selected.toFixed(1)) : null,
+        Directo: r.hasDirect ? Number(r.directFeno.toFixed(1)) : null,
+        Estimado: r.equationValue !== null ? Number(r.equationValue.toFixed(1)) : null,
       })),
     [results]
   );
@@ -336,7 +374,7 @@ export default function App() {
       if (!r.valid) {
         lines.push(`- Prueba ${i + 1}: no calculable por información incompleta.`);
       } else {
-        lines.push(`- Prueba ${i + 1}: ${r.selected.toFixed(1)} ppb (${r.classSelected.label}). ${r.classSelected.summary}.`);
+        lines.push(`- Prueba ${i + 1}: ${r.selected.toFixed(1)} ppb (${r.classSelected.label}). ${r.classSelected.summary}. Fuente: ${r.selectedSource}. Fuente: ${r.selectedSource}.`);
       }
     });
     lines.push("");
@@ -372,7 +410,7 @@ export default function App() {
     return lines.join("\n");
   }
 
-  const reportText = useMemo(makeReportText, [patient, results, longitudinal, isChild]);
+  const reportText = useMemo(makeReportText, [patient, results, longitudinal, isChild, measurementMode, modelType]);
 
   const updateScenario = (idx, key, value) => {
     setScenarios((prev) => prev.map((s, i) => (i === idx ? { ...s, [key]: value } : s)));
@@ -464,8 +502,14 @@ export default function App() {
               <div style={styles.rowBetween}>
                 <h2 style={{ ...styles.sectionTitle, marginBottom: 0 }}>Pruebas y modelo</h2>
                 <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
+                  <span style={{ fontSize: "14px", color: "#475569", fontWeight: 600 }}>Modo de resultado</span>
+                  <select style={{ ...styles.select, width: "260px" }} value={measurementMode} onChange={(e) => setMeasurementMode(e.target.value)}>
+                    <option value="both">Ambos (prioriza medición directa si existe)</option>
+                    <option value="direct">Solo medición directa</option>
+                    <option value="estimated">Solo estimación por ecuación</option>
+                  </select>
                   <span style={{ fontSize: "14px", color: "#475569", fontWeight: 600 }}>Modelo activo</span>
-                  <select style={{ ...styles.select, width: "360px" }} value={modelType} onChange={(e) => setModelType(e.target.value)}>
+                  <select style={{ ...styles.select, width: "320px" }} value={modelType} onChange={(e) => setModelType(e.target.value)}>
                     <option value="auto">Automático (usa eosinófilos si están disponibles)</option>
                     <option value="basic">Modelo clínico básico</option>
                     <option value="eos">Modelo con eosinófilos</option>
@@ -482,6 +526,7 @@ export default function App() {
                         <Field label="FEV1 pre (% predicho)"><input type="number" style={styles.input} value={s.fev1Pre} onChange={(e) => updateScenario(idx, "fev1Pre", e.target.value)} /></Field>
                         <Field label="FEV1 post (% predicho)"><input type="number" style={styles.input} value={s.fev1Post} onChange={(e) => updateScenario(idx, "fev1Post", e.target.value)} /></Field>
                         <Field label="Eosinófilos periféricos (cél/µL, opcional)"><input type="number" style={styles.input} value={s.eos} onChange={(e) => updateScenario(idx, "eos", e.target.value)} /></Field>
+                        <Field label="FeNO directo medido con equipo (ppb, opcional)"><input type="number" style={styles.input} value={s.directFeno} onChange={(e) => updateScenario(idx, "directFeno", e.target.value)} /></Field>
                       </div>
                       <div style={styles.scenarioInfo}>
                         {!r.valid ? (
@@ -489,11 +534,12 @@ export default function App() {
                         ) : (
                           <div>
                             <div><strong>BDR:</strong> {r.bdr.toFixed(1)}%</div>
-                            <div><strong>Modelo usado:</strong> {r.selectedModel}</div>
-                            <div><strong>FeNO estimado:</strong> {r.selected.toFixed(1)} ppb</div>
+                            <div><strong>Fuente usada:</strong> {r.selectedSource || "No disponible"}</div>
+                            <div><strong>Valor reportado:</strong> {r.selected.toFixed(1)} ppb</div>
                             <div><strong>Clasificación:</strong> {r.classSelected.label}</div>
-                            {r.fenoB !== null && modelType !== "eos" ? <div style={{ fontSize: "12px", color: "#64748b", marginTop: "6px" }}>Con eosinófilos: {r.fenoB.toFixed(1)} ppb</div> : null}
-                            {r.fenoA !== null && modelType !== "basic" ? <div style={{ fontSize: "12px", color: "#64748b" }}>Modelo básico: {r.fenoA.toFixed(1)} ppb</div> : null}
+                            {r.directFeno !== null ? <div style={{ fontSize: "12px", color: "#64748b", marginTop: "6px" }}>Directo: {r.directFeno.toFixed(1)} ppb</div> : null}
+                            {r.fenoB !== null ? <div style={{ fontSize: "12px", color: "#64748b", marginTop: "4px" }}>Estimado con eosinófilos: {r.fenoB.toFixed(1)} ppb</div> : null}
+                            {r.fenoA !== null ? <div style={{ fontSize: "12px", color: "#64748b", marginTop: "4px" }}>Estimado modelo básico: {r.fenoA.toFixed(1)} ppb</div> : null}
                           </div>
                         )}
                       </div>
@@ -525,7 +571,9 @@ export default function App() {
                     <Tooltip formatter={(value) => (value == null ? "No calculable" : `${value} ppb`)} />
                     <ReferenceLine y={thresholds.low} stroke="#f59e0b" strokeDasharray="4 4" label={{ value: `Bajo < ${thresholds.low}`, position: "insideTopRight", fill: "#92400e", fontSize: 11 }} />
                     <ReferenceLine y={thresholds.high} stroke="#ef4444" strokeDasharray="4 4" label={{ value: `Alto > ${thresholds.high}`, position: "insideTopLeft", fill: "#991b1b", fontSize: 11 }} />
-                    <Line type="monotone" dataKey="FeNO" stroke="#0f172a" strokeWidth={3} dot={{ r: 5 }} connectNulls={false} />
+                    <Line type="monotone" dataKey="FeNO" stroke="#0f172a" strokeWidth={3} dot={{ r: 5 }} connectNulls={false} name="Valor reportado" />
+                    {measurementMode === "both" ? <Line type="monotone" dataKey="Directo" stroke="#2563eb" strokeWidth={2} dot={{ r: 4 }} connectNulls={false} name="Directo" /> : null}
+                    {measurementMode === "both" ? <Line type="monotone" dataKey="Estimado" stroke="#16a34a" strokeWidth={2} dot={{ r: 4 }} connectNulls={false} name="Estimado" /> : null}
                   </LineChart>
                 </ResponsiveContainer>
               </div>
@@ -580,7 +628,9 @@ export default function App() {
                         <Tooltip formatter={(value) => (value == null ? "No calculable" : `${value} ppb`)} />
                         <ReferenceLine y={thresholds.low} stroke="#f59e0b" strokeDasharray="4 4" />
                         <ReferenceLine y={thresholds.high} stroke="#ef4444" strokeDasharray="4 4" />
-                        <Line type="monotone" dataKey="FeNO" stroke="#0f172a" strokeWidth={3} dot={{ r: 5 }} connectNulls={false} />
+                        <Line type="monotone" dataKey="FeNO" stroke="#0f172a" strokeWidth={3} dot={{ r: 5 }} connectNulls={false} name="Valor reportado" />
+                        {measurementMode === "both" ? <Line type="monotone" dataKey="Directo" stroke="#2563eb" strokeWidth={2} dot={{ r: 4 }} connectNulls={false} name="Directo" /> : null}
+                        {measurementMode === "both" ? <Line type="monotone" dataKey="Estimado" stroke="#16a34a" strokeWidth={2} dot={{ r: 4 }} connectNulls={false} name="Estimado" /> : null}
                       </LineChart>
                     </ResponsiveContainer>
                   </div>
