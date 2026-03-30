@@ -194,11 +194,98 @@ export default function App() {
   );
 
   const classifyFeno = (value) => {
-    if (value == null) return { label: "No calculable", summary: "Información insuficiente" };
-    if (value < thresholds.low) return { label: "Bajo", summary: "Baja probabilidad de inflamación eosinofílica significativa." };
-    if (value > thresholds.high) return { label: "Alto", summary: "Alta probabilidad de inflamación tipo 2/eosinofílica." };
-    return { label: "Intermedio", summary: "Interpretar con el contexto clínico y funcional." };
-  };
+    if (value == null) return { label: "No calculable", summary: "Información insuficiente." };
+
+    const dose = patient.usaICS ? (toNum(patient.icsDose) || 0) : 0;
+    const hasRhinitisOrAtopy = patient.atopia || patient.rinitis;
+
+    if (!patient.usaICS) {
+      if (isChild) {
+        if (value < 20) return { label: "Bajo", summary: "Baja probabilidad de inflamación eosinofílica significativa en ausencia de ICS." };
+        if (value > 35) return { label: "Alto", summary: "Alta probabilidad de inflamación tipo 2 / eosinofílica en ausencia de ICS." };
+        return { label: "Intermedio", summary: "Interpretar con el contexto clínico; en niños sin ICS este rango requiere correlación con síntomas y función pulmonar." };
+      }
+      if (value < 25) return { label: "Bajo", summary: "Baja probabilidad de inflamación eosinofílica significativa en ausencia de ICS." };
+      if (value > 50) return { label: "Alto", summary: "Alta probabilidad de inflamación tipo 2 / eosinofílica en ausencia de ICS." };
+      return { label: "Intermedio", summary: "Interpretar con el contexto clínico y funcional en ausencia de ICS." };
+    }
+
+    if (dose >= 400) {
+      if (value >= 20) {
+        return {
+          label: "Alto para ICS alta",
+          summary: "Valor persistentemente relevante pese a dosis alta de ICS; considerar inflamación residual, exposición alergénica continua o adherencia subóptima.",
+        };
+      }
+      return {
+        label: "Controlado / suprimido",
+        summary: "Valor bajo bajo tratamiento con ICS en dosis alta, compatible con supresión del biomarcador; interpretar junto con clínica y función pulmonar.",
+      };
+    }
+
+    if (dose >= 200) {
+      if (value >= 25) {
+        return {
+          label: "Alto para ICS media",
+          summary: "Valor clínicamente relevante pese a ICS en dosis media; puede sugerir inflamación persistente o control antiinflamatorio incompleto.",
+        };
+      }
+      if (value < 20) {
+        return {
+          label: "Bajo",
+          summary: "Valor bajo bajo ICS en dosis media, compatible con baja señal inflamatoria o efecto supresor del tratamiento.",
+        };
+      }
+      return {
+        label: "Intermedio en tratamiento",
+        summary: "Valor intermedio bajo ICS en dosis media; interpretar junto con síntomas, función pulmonar, atopia y rinitis.",
+      };
+    }
+
+    if (value < thresholds.low) {
+      return {
+        label: "Bajo",
+        summary: "Valor bajo, aunque el tratamiento inhalado y la broncoconstricción pueden disminuir FeNO y atenuar la señal inflamatoria.",
+      };
+    }
+    if (value > thresholds.high) {
+      return {
+        label: hasRhinitisOrAtopy ? "Alto (posible influencia alérgica)" : "Alto",
+        summary: hasRhinitisOrAtopy
+          ? "Valor alto; la presencia de atopia o rinitis puede contribuir al incremento del FeNO además de la inflamación bronquial."
+          : "Valor alto, compatible con mayor probabilidad de inflamación tipo 2 / eosinofílica.",
+      };
+    }
+    return {
+      label: "Intermedio",
+      summary: "Interpretar con el contexto clínico y funcional; el FeNO puede verse modificado por ICS, atopia, rinitis, hora del día y exposición alergénica.",
+    };
+  };n { label: "Alto", summary: "Alta probabilidad de inflamación tipo 2 / eosinofílica en ausencia de ICS." };
+        return { label: "Intermedio", summary: "Interpretar con el contexto clínico; en niños sin ICS este rango requiere correlación con síntomas y función pulmonar." };
+      }
+      if (value < 25) return { label: "Bajo", summary: "Baja probabilidad de inflamación eosinofílica significativa en ausencia de ICS." };
+      if (value > 50) return { label: "Alto", summary: "Alta probabilidad de inflamación tipo 2 / eosinofílica en ausencia de ICS." };
+      return { label: "Intermedio", summary: "Interpretar con el contexto clínico y funcional en ausencia de ICS." };
+    }
+
+    if (dose >= 400) {
+      if (value >= 20) {
+        return {
+          label: "Alto para ICS alta",
+          summary: "Valor persistentemente relevante pese a dosis alta de ICS; considerar inflamación residual, exposición alergénica continua o adherencia subóptima.",
+        };
+      }
+      return {
+        label: "Controlado / suprimido",
+        summary: "Valor bajo bajo tratamiento con ICS en dosis alta, compatible con supresión del biomarcador; interpretar junto con clínica y función pulmonar.",
+      };
+    }
+
+    if (dose >= 200) {
+      if (value >= 25) {
+        return {
+          label: "Alto para ICS media",
+          summary: "Valor clínicamente relevante pese a ICS en dosis media; puede sugerir inflamación persistente o control antiinflamatorio incompl
 
   function calculateScenario(s) {
     const fev1Pre = toNum(s.fev1Pre);
@@ -242,34 +329,32 @@ export default function App() {
 
     if (measurementMode === "direct") {
       if (hasDirect) {
-        selected = directFeno;
-        selectedSource = "Medición directa";
-      }
-    } else if (measurementMode === "estimated") {
-      if (equationValue !== null) {
-        selected = equationValue;
-        selectedSource = equationModel;
-      }
-    } else {
-      if (hasDirect) {
-        selected = directFeno;
-        selectedSource = equationValue !== null ? `Medición directa (estimado: ${equationValue.toFixed(1)} ppb)` : "Medición directa";
-      } else if (equationValue !== null) {
-        selected = equationValue;
-        selectedSource = equationModel;
-      }
+        selconst interpText = (value) => {
+    if (value == null) return "No fue posible obtener un valor interpretable con la información ingresada.";
+    const cls = classifyFeno(value);
+    const dose = patient.usaICS ? (toNum(patient.icsDose) || 0) : 0;
+
+    if (!patient.usaICS) {
+      if (cls.label.startsWith("Bajo")) return "Los valores se ubican en rango bajo para un paciente sin ICS, compatible con baja probabilidad de inflamación eosinofílica significativa de la vía aérea.";
+      if (cls.label.startsWith("Alto")) return "Los valores se ubican en rango alto para un paciente sin ICS, compatible con mayor probabilidad de inflamación tipo 2/eosinofílica; estos hallazgos deben correlacionarse con síntomas y función pulmonar.";
+      return "Los valores se ubican en rango intermedio sin tratamiento con ICS, por lo que requieren interpretación integrada con clínica, espirometría y antecedentes alérgicos.";
     }
 
-    return {
-      valid: selected !== null,
-      directFeno,
-      bdr,
-      fenoA,
-      fenoB,
-      equationValue,
-      equationModel,
-      selected,
-      selectedSource,
+    if (dose >= 400) {
+      if (value >= 20) return "Los valores permanecen relevantes pese al uso de ICS en dosis alta, lo cual puede ser compatible con inflamación persistente, exposición alergénica continua o posible adherencia subóptima.";
+      return "Los valores son bajos bajo tratamiento con ICS en dosis alta, compatibles con supresión del biomarcador; esto no excluye por sí solo actividad clínica si persisten síntomas por otros mecanismos.";
+    }
+
+    if (dose >= 200) {
+      if (value >= 25) return "Los valores son clínicamente relevantes pese a ICS en dosis media, lo que sugiere control antiinflamatorio incompleto o persistencia de inflamación tipo 2.";
+      if (value < 20) return "Los valores son bajos bajo ICS en dosis media, compatibles con baja señal inflamatoria o efecto supresor del tratamiento inhalado.";
+      return "Los valores se ubican en un rango intermedio bajo ICS en dosis media y deben interpretarse con síntomas, función pulmonar, atopia y rinitis.";
+    }
+
+    if (cls.label.startsWith("Bajo")) return "Los valores se ubican en rango bajo, aunque el uso de corticosteroides inhalados y el estado funcional bronquial pueden disminuir el FeNO y modular su interpretación.";
+    if (cls.label.startsWith("Alto")) return "Los valores se ubican en rango alto; la presencia de atopia, rinitis o exposición alergénica puede incrementar el FeNO además de la inflamación bronquial.";
+    return "Los valores se ubican en rango intermedio, por lo que su interpretación requiere correlación con síntomas, función pulmonar, comorbilidades alérgicas, tratamiento inhalado y evolución clínica.";
+  }; selectedSource,
       classSelected: classifyFeno(selected),
     };
   }
@@ -313,25 +398,7 @@ export default function App() {
     const lines = [];
     lines.push("EVALUACIÓN DE INFLAMACIÓN DE LA VÍA AÉREA (FeNO)");
     lines.push("");
-    lines.push(`Nombre del paciente: ${patient.nombre || "________________"}`);
-    lines.push(`Edad: ${patient.edad || "__"} años`);
-    lines.push(`Fecha: ${patient.fecha}`);
-    lines.push("");
-    lines.push("RESULTADOS");
-    results.forEach((r, i) => {
-      lines.push(
-        r.valid
-          ? `- Prueba ${i + 1}: ${r.selected.toFixed(1)} ppb (${r.classSelected.label}). ${r.classSelected.summary} Fuente: ${r.selectedSource}.`
-          : `- Prueba ${i + 1}: no calculable por información incompleta.`
-      );
-    });
-    lines.push("");
-    lines.push("CURVA DE VALORES (ppb)");
-    lines.push(chartData.map((d) => `${d.name}: ${d.Reportado ?? "NA"}`).join(" | "));
-    lines.push("");
-    lines.push("INTERPRETACIÓN CLÍNICA");
-    lines.push(interpText(avg));
-    lines.push("La interpretación del óxido nítrico exhalado debe integrarse con los síntomas, la función pulmonar, la presencia de atopia o rinitis y la evolución clínica.");
+    lines.push(`Nombre del paciente: ${patient.nomb("La interpretación del óxido nítrico exhalado debe integrarse con los síntomas, la función pulmonar, la presencia de atopia o rinitis y la evolución clínica.");
     if (longitudinal) {
       lines.push("");
       lines.push("INTERPRETACIÓN LONGITUDINAL");
@@ -549,8 +616,8 @@ export default function App() {
                         <Legend />
                         <ReferenceLine y={thresholds.low} stroke="#f59e0b" strokeDasharray="4 4" />
                         <ReferenceLine y={thresholds.high} stroke="#ef4444" strokeDasharray="4 4" />
-                        <Line type="monotone" dataKey="Reportado" stroke="#0f172a" strokeWidth={3} dot={{ r: 5 }} connectNulls={false} />
-                        {measurementMode === "both" ? <Line type="monotone" dataKey="Directo" stroke="#2563eb" strokeWidth={2} dot={{ r: 4 }} connectNulls={false} /> : null}
+                        <Line type="monotone" dataKey="Reportado" stroke="#0f172a" strokeWidth={3} dot=<p style={{ ...styles.para, marginTop: 8 }}>La interpretación del óxido nítrico exhalado debe integrarse con los síntomas, la función pulmonar, la presencia de atopia o rinitis y la evolución clínica.</p>
+                  <p style={{ ...styles.para, marginTop: 8 }}>Factores que pueden modificar el FeNO incluyen edad, sexo, hora del día, exposición alergénica en individuos sensibilizados, técnica y sitio de medición, broncoconstricción, menor función pulmonar y uso de corticosteroides inhalados en forma dosis-dependiente.</p>ull}
                         {measurementMode === "both" ? <Line type="monotone" dataKey="Estimado" stroke="#16a34a" strokeWidth={2} dot={{ r: 4 }} connectNulls={false} /> : null}
                       </LineChart>
                     </ResponsiveContainer>
