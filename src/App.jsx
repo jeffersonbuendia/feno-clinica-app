@@ -48,8 +48,17 @@ const styles = {
   leftColumn: { display: "flex", flexDirection: "column", gap: 20 },
   rightColumn: { display: "flex", flexDirection: "column", gap: 20 },
   sectionTitle: { fontSize: 20, fontWeight: 700, margin: "0 0 16px 0" },
-  fieldGrid3: { display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 14 },
-  fieldGrid4: { display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 14, marginTop: 14 },
+  fieldGrid3: {
+    display: "grid",
+    gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+    gap: 14,
+  },
+  fieldGrid4: {
+    display: "grid",
+    gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+    gap: 14,
+    marginTop: 14,
+  },
   field: { display: "flex", flexDirection: "column", gap: 6 },
   label: { fontSize: 14, fontWeight: 600, color: "#334155" },
   input: {
@@ -70,9 +79,24 @@ const styles = {
     boxSizing: "border-box",
     background: "#fff",
   },
-  rowBetween: { display: "flex", justifyContent: "space-between", alignItems: "center", gap: 14, flexWrap: "wrap" },
-  scenarioGrid: { display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 14 },
-  scenarioCard: { border: "1px solid #dbe3ee", borderRadius: 18, padding: 16, background: "#fff" },
+  rowBetween: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 14,
+    flexWrap: "wrap",
+  },
+  scenarioGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+    gap: 14,
+  },
+  scenarioCard: {
+    border: "1px solid #dbe3ee",
+    borderRadius: 18,
+    padding: 16,
+    background: "#fff",
+  },
   scenarioInfo: {
     marginTop: 14,
     background: "#f8fafc",
@@ -109,7 +133,12 @@ const styles = {
     fontWeight: 600,
     cursor: "pointer",
   },
-  reportPaper: { background: "#fff", border: "1px solid #dbe3ee", borderRadius: 18, padding: 24 },
+  reportPaper: {
+    background: "#fff",
+    border: "1px solid #dbe3ee",
+    borderRadius: 18,
+    padding: 24,
+  },
   reportHeader: {
     display: "flex",
     justifyContent: "space-between",
@@ -122,7 +151,13 @@ const styles = {
   reportTitle: { fontSize: 24, fontWeight: 700, margin: 0 },
   reportMeta: { fontSize: 14, lineHeight: 1.6, color: "#334155" },
   reportSection: { marginTop: 18 },
-  reportSectionTitle: { fontSize: 16, fontWeight: 700, marginBottom: 10, paddingBottom: 6, borderBottom: "1px solid #e2e8f0" },
+  reportSectionTitle: {
+    fontSize: 16,
+    fontWeight: 700,
+    marginBottom: 10,
+    paddingBottom: 6,
+    borderBottom: "1px solid #e2e8f0",
+  },
   resultList: { margin: 0, paddingLeft: 20, lineHeight: 1.65, fontSize: 14 },
   para: { fontSize: 14, lineHeight: 1.65, margin: 0 },
   footer: { marginTop: 28, fontSize: 14, lineHeight: 1.6 },
@@ -189,37 +224,77 @@ export default function App() {
   }, [patient.edad]);
 
   const thresholds = useMemo(
-    () => (isChild ? { low: 20, high: 35, label: "Niños (<12 años)" } : { low: 25, high: 50, label: "Adultos / ≥12 años" }),
+    () =>
+      isChild
+        ? { low: 20, high: 35, label: "Niños (<12 años)" }
+        : { low: 25, high: 50, label: "Adultos / ≥12 años" },
     [isChild]
   );
 
   const classifyFeno = (value) => {
-    if (value == null) return { label: "No calculable", summary: "Información insuficiente." };
+    if (value == null) {
+      return { label: "No calculable", summary: "Información insuficiente." };
+    }
 
-    const dose = patient.usaICS ? (toNum(patient.icsDose) || 0) : 0;
+    const dose = patient.usaICS ? toNum(patient.icsDose) || 0 : 0;
     const hasRhinitisOrAtopy = patient.atopia || patient.rinitis;
 
     if (!patient.usaICS) {
       if (isChild) {
-        if (value < 20) return { label: "Bajo", summary: "Baja probabilidad de inflamación eosinofílica significativa en ausencia de ICS." };
-        if (value > 35) return { label: "Alto", summary: "Alta probabilidad de inflamación tipo 2 / eosinofílica en ausencia de ICS." };
-        return { label: "Intermedio", summary: "Interpretar con el contexto clínico; en niños sin ICS este rango requiere correlación con síntomas y función pulmonar." };
+        if (value < 20) {
+          return {
+            label: "Bajo",
+            summary:
+              "Baja probabilidad de inflamación eosinofílica significativa en ausencia de ICS.",
+          };
+        }
+        if (value > 35) {
+          return {
+            label: "Alto",
+            summary:
+              "Alta probabilidad de inflamación tipo 2 / eosinofílica en ausencia de ICS.",
+          };
+        }
+        return {
+          label: "Intermedio",
+          summary:
+            "Interpretar con el contexto clínico; en niños sin ICS este rango requiere correlación con síntomas y función pulmonar.",
+        };
       }
-      if (value < 25) return { label: "Bajo", summary: "Baja probabilidad de inflamación eosinofílica significativa en ausencia de ICS." };
-      if (value > 50) return { label: "Alto", summary: "Alta probabilidad de inflamación tipo 2 / eosinofílica en ausencia de ICS." };
-      return { label: "Intermedio", summary: "Interpretar con el contexto clínico y funcional en ausencia de ICS." };
+
+      if (value < 25) {
+        return {
+          label: "Bajo",
+          summary:
+            "Baja probabilidad de inflamación eosinofílica significativa en ausencia de ICS.",
+        };
+      }
+      if (value > 50) {
+        return {
+          label: "Alto",
+          summary:
+            "Alta probabilidad de inflamación tipo 2 / eosinofílica en ausencia de ICS.",
+        };
+      }
+      return {
+        label: "Intermedio",
+        summary:
+          "Interpretar con el contexto clínico y funcional en ausencia de ICS.",
+      };
     }
 
     if (dose >= 400) {
       if (value >= 20) {
         return {
           label: "Alto para ICS alta",
-          summary: "Valor persistentemente relevante pese a dosis alta de ICS; considerar inflamación residual, exposición alergénica continua o adherencia subóptima.",
+          summary:
+            "Valor persistentemente relevante pese a dosis alta de ICS; considerar inflamación residual, exposición alergénica continua o adherencia subóptima.",
         };
       }
       return {
         label: "Controlado / suprimido",
-        summary: "Valor bajo bajo tratamiento con ICS en dosis alta, compatible con supresión del biomarcador; interpretar junto con clínica y función pulmonar.",
+        summary:
+          "Valor bajo bajo tratamiento con ICS en dosis alta, compatible con supresión del biomarcador; interpretar junto con clínica y función pulmonar.",
       };
     }
 
@@ -227,65 +302,49 @@ export default function App() {
       if (value >= 25) {
         return {
           label: "Alto para ICS media",
-          summary: "Valor clínicamente relevante pese a ICS en dosis media; puede sugerir inflamación persistente o control antiinflamatorio incompleto.",
+          summary:
+            "Valor clínicamente relevante pese a ICS en dosis media; puede sugerir inflamación persistente o control antiinflamatorio incompleto.",
         };
       }
       if (value < 20) {
         return {
           label: "Bajo",
-          summary: "Valor bajo bajo ICS en dosis media, compatible con baja señal inflamatoria o efecto supresor del tratamiento.",
+          summary:
+            "Valor bajo bajo ICS en dosis media, compatible con baja señal inflamatoria o efecto supresor del tratamiento.",
         };
       }
       return {
         label: "Intermedio en tratamiento",
-        summary: "Valor intermedio bajo ICS en dosis media; interpretar junto con síntomas, función pulmonar, atopia y rinitis.",
+        summary:
+          "Valor intermedio bajo ICS en dosis media; interpretar junto con síntomas, función pulmonar, atopia y rinitis.",
       };
     }
 
     if (value < thresholds.low) {
       return {
         label: "Bajo",
-        summary: "Valor bajo, aunque el tratamiento inhalado y la broncoconstricción pueden disminuir FeNO y atenuar la señal inflamatoria.",
+        summary:
+          "Valor bajo, aunque el tratamiento inhalado y la broncoconstricción pueden disminuir FeNO y atenuar la señal inflamatoria.",
       };
     }
+
     if (value > thresholds.high) {
       return {
-        label: hasRhinitisOrAtopy ? "Alto (posible influencia alérgica)" : "Alto",
+        label: hasRhinitisOrAtopy
+          ? "Alto (posible influencia alérgica)"
+          : "Alto",
         summary: hasRhinitisOrAtopy
           ? "Valor alto; la presencia de atopia o rinitis puede contribuir al incremento del FeNO además de la inflamación bronquial."
           : "Valor alto, compatible con mayor probabilidad de inflamación tipo 2 / eosinofílica.",
       };
     }
+
     return {
       label: "Intermedio",
-      summary: "Interpretar con el contexto clínico y funcional; el FeNO puede verse modificado por ICS, atopia, rinitis, hora del día y exposición alergénica.",
+      summary:
+        "Interpretar con el contexto clínico y funcional; el FeNO puede verse modificado por ICS, atopia, rinitis, hora del día y exposición alergénica.",
     };
-  };n { label: "Alto", summary: "Alta probabilidad de inflamación tipo 2 / eosinofílica en ausencia de ICS." };
-        return { label: "Intermedio", summary: "Interpretar con el contexto clínico; en niños sin ICS este rango requiere correlación con síntomas y función pulmonar." };
-      }
-      if (value < 25) return { label: "Bajo", summary: "Baja probabilidad de inflamación eosinofílica significativa en ausencia de ICS." };
-      if (value > 50) return { label: "Alto", summary: "Alta probabilidad de inflamación tipo 2 / eosinofílica en ausencia de ICS." };
-      return { label: "Intermedio", summary: "Interpretar con el contexto clínico y funcional en ausencia de ICS." };
-    }
-
-    if (dose >= 400) {
-      if (value >= 20) {
-        return {
-          label: "Alto para ICS alta",
-          summary: "Valor persistentemente relevante pese a dosis alta de ICS; considerar inflamación residual, exposición alergénica continua o adherencia subóptima.",
-        };
-      }
-      return {
-        label: "Controlado / suprimido",
-        summary: "Valor bajo bajo tratamiento con ICS en dosis alta, compatible con supresión del biomarcador; interpretar junto con clínica y función pulmonar.",
-      };
-    }
-
-    if (dose >= 200) {
-      if (value >= 25) {
-        return {
-          label: "Alto para ICS media",
-          summary: "Valor clínicamente relevante pese a ICS en dosis media; puede sugerir inflamación persistente o control antiinflamatorio incompl
+  };
 
   function calculateScenario(s) {
     const fev1Pre = toNum(s.fev1Pre);
@@ -298,7 +357,8 @@ export default function App() {
     const S = icsDose / 200;
 
     const hasDirect = directFeno !== null && directFeno >= 0;
-    const hasEquationInputs = fev1Pre !== null && fev1Post !== null && fev1Pre > 0;
+    const hasEquationInputs =
+      fev1Pre !== null && fev1Post !== null && fev1Pre > 0;
 
     let bdr = null;
     let fenoA = null;
@@ -307,18 +367,33 @@ export default function App() {
     if (hasEquationInputs) {
       bdr = ((fev1Post - fev1Pre) / fev1Pre) * 100;
       const F = fev1Pre / 10;
-      const logFenoA = 2.10 + 0.06 * bdr - 0.05 * F + 0.25 * atopia + 0.15 * rinitis - 0.22 * S;
+
+      const logFenoA =
+        2.1 +
+        0.06 * bdr -
+        0.05 * F +
+        0.25 * atopia +
+        0.15 * rinitis -
+        0.22 * S;
       fenoA = Math.exp(logFenoA);
 
       if (eos !== null && eos >= 0) {
         const E = eos / 100;
-        const logFenoB = 1.95 + 0.05 * bdr - 0.04 * F + 0.22 * atopia + 0.12 * rinitis - 0.20 * S + 0.11 * E;
+        const logFenoB =
+          1.95 +
+          0.05 * bdr -
+          0.04 * F +
+          0.22 * atopia +
+          0.12 * rinitis -
+          0.2 * S +
+          0.11 * E;
         fenoB = Math.exp(logFenoB);
       }
     }
 
     let equationValue = fenoA;
     let equationModel = "Modelo clínico básico";
+
     if ((modelType === "eos" || modelType === "auto") && fenoB !== null) {
       equationValue = fenoB;
       equationModel = "Modelo con eosinófilos";
@@ -329,41 +404,56 @@ export default function App() {
 
     if (measurementMode === "direct") {
       if (hasDirect) {
-        selconst interpText = (value) => {
-    if (value == null) return "No fue posible obtener un valor interpretable con la información ingresada.";
-    const cls = classifyFeno(value);
-    const dose = patient.usaICS ? (toNum(patient.icsDose) || 0) : 0;
-
-    if (!patient.usaICS) {
-      if (cls.label.startsWith("Bajo")) return "Los valores se ubican en rango bajo para un paciente sin ICS, compatible con baja probabilidad de inflamación eosinofílica significativa de la vía aérea.";
-      if (cls.label.startsWith("Alto")) return "Los valores se ubican en rango alto para un paciente sin ICS, compatible con mayor probabilidad de inflamación tipo 2/eosinofílica; estos hallazgos deben correlacionarse con síntomas y función pulmonar.";
-      return "Los valores se ubican en rango intermedio sin tratamiento con ICS, por lo que requieren interpretación integrada con clínica, espirometría y antecedentes alérgicos.";
+        selected = directFeno;
+        selectedSource = "Medición directa";
+      }
+    } else if (measurementMode === "estimated") {
+      if (equationValue !== null) {
+        selected = equationValue;
+        selectedSource = equationModel;
+      }
+    } else {
+      if (hasDirect) {
+        selected = directFeno;
+        selectedSource =
+          equationValue !== null
+            ? `Medición directa (estimado: ${equationValue.toFixed(1)} ppb)`
+            : "Medición directa";
+      } else if (equationValue !== null) {
+        selected = equationValue;
+        selectedSource = equationModel;
+      }
     }
 
-    if (dose >= 400) {
-      if (value >= 20) return "Los valores permanecen relevantes pese al uso de ICS en dosis alta, lo cual puede ser compatible con inflamación persistente, exposición alergénica continua o posible adherencia subóptima.";
-      return "Los valores son bajos bajo tratamiento con ICS en dosis alta, compatibles con supresión del biomarcador; esto no excluye por sí solo actividad clínica si persisten síntomas por otros mecanismos.";
-    }
-
-    if (dose >= 200) {
-      if (value >= 25) return "Los valores son clínicamente relevantes pese a ICS en dosis media, lo que sugiere control antiinflamatorio incompleto o persistencia de inflamación tipo 2.";
-      if (value < 20) return "Los valores son bajos bajo ICS en dosis media, compatibles con baja señal inflamatoria o efecto supresor del tratamiento inhalado.";
-      return "Los valores se ubican en un rango intermedio bajo ICS en dosis media y deben interpretarse con síntomas, función pulmonar, atopia y rinitis.";
-    }
-
-    if (cls.label.startsWith("Bajo")) return "Los valores se ubican en rango bajo, aunque el uso de corticosteroides inhalados y el estado funcional bronquial pueden disminuir el FeNO y modular su interpretación.";
-    if (cls.label.startsWith("Alto")) return "Los valores se ubican en rango alto; la presencia de atopia, rinitis o exposición alergénica puede incrementar el FeNO además de la inflamación bronquial.";
-    return "Los valores se ubican en rango intermedio, por lo que su interpretación requiere correlación con síntomas, función pulmonar, comorbilidades alérgicas, tratamiento inhalado y evolución clínica.";
-  }; selectedSource,
+    return {
+      valid: selected !== null,
+      directFeno,
+      bdr,
+      fenoA,
+      fenoB,
+      equationValue,
+      equationModel,
+      selected,
+      selectedSource,
       classSelected: classifyFeno(selected),
     };
   }
 
-  const results = useMemo(() => scenarios.map(calculateScenario), [scenarios, patient, modelType, measurementMode, thresholds]);
+  const results = useMemo(
+    () =>
+      scenarios.map((s) => {
+        return calculateScenario(s);
+      }),
+    [scenarios, patient, modelType, measurementMode, thresholds]
+  );
 
   const longitudinal = useMemo(() => {
-    const vals = results.map((r) => (r.valid ? r.selected : null)).filter((v) => v != null);
+    const vals = results
+      .map((r) => (r.valid ? r.selected : null))
+      .filter((v) => v != null);
+
     if (vals.length < 2) return null;
+
     const first = vals[0];
     const last = vals[vals.length - 1];
     return { first, last, pct: ((last - first) / first) * 100 };
@@ -376,11 +466,49 @@ export default function App() {
   }, [results]);
 
   const interpText = (value) => {
-    if (value == null) return "No fue posible obtener un valor interpretable con la información ingresada.";
+    if (value == null) {
+      return "No fue posible obtener un valor interpretable con la información ingresada.";
+    }
+
     const cls = classifyFeno(value);
-    if (cls.label === "Bajo") return "Los valores se ubican en rango bajo, compatible con baja probabilidad de inflamación eosinofílica significativa de la vía aérea.";
-    if (cls.label === "Alto") return "Los valores se ubican en rango alto, compatible con mayor probabilidad de inflamación tipo 2/eosinofílica; deben correlacionarse con síntomas y función pulmonar.";
-    return "Los valores se ubican en rango intermedio, por lo que su interpretación requiere correlación con síntomas, función pulmonar, comorbilidades alérgicas y evolución clínica.";
+    const dose = patient.usaICS ? toNum(patient.icsDose) || 0 : 0;
+
+    if (!patient.usaICS) {
+      if (cls.label.startsWith("Bajo")) {
+        return "Los valores se ubican en rango bajo para un paciente sin ICS, compatible con baja probabilidad de inflamación eosinofílica significativa de la vía aérea.";
+      }
+      if (cls.label.startsWith("Alto")) {
+        return "Los valores se ubican en rango alto para un paciente sin ICS, compatible con mayor probabilidad de inflamación tipo 2/eosinofílica; estos hallazgos deben correlacionarse con síntomas y función pulmonar.";
+      }
+      return "Los valores se ubican en rango intermedio sin tratamiento con ICS, por lo que requieren interpretación integrada con clínica, espirometría y antecedentes alérgicos.";
+    }
+
+    if (dose >= 400) {
+      if (value >= 20) {
+        return "Los valores permanecen relevantes pese al uso de ICS en dosis alta, lo cual puede ser compatible con inflamación persistente, exposición alergénica continua o posible adherencia subóptima.";
+      }
+      return "Los valores son bajos bajo tratamiento con ICS en dosis alta, compatibles con supresión del biomarcador; esto no excluye por sí solo actividad clínica si persisten síntomas por otros mecanismos.";
+    }
+
+    if (dose >= 200) {
+      if (value >= 25) {
+        return "Los valores son clínicamente relevantes pese a ICS en dosis media, lo que sugiere control antiinflamatorio incompleto o persistencia de inflamación tipo 2.";
+      }
+      if (value < 20) {
+        return "Los valores son bajos bajo ICS en dosis media, compatibles con baja señal inflamatoria o efecto supresor del tratamiento inhalado.";
+      }
+      return "Los valores se ubican en un rango intermedio bajo ICS en dosis media y deben interpretarse con síntomas, función pulmonar, atopia y rinitis.";
+    }
+
+    if (cls.label.startsWith("Bajo")) {
+      return "Los valores se ubican en rango bajo, aunque el uso de corticosteroides inhalados y el estado funcional bronquial pueden disminuir el FeNO y modular su interpretación.";
+    }
+
+    if (cls.label.startsWith("Alto")) {
+      return "Los valores se ubican en rango alto; la presencia de atopia, rinitis o exposición alergénica puede incrementar el FeNO además de la inflamación bronquial.";
+    }
+
+    return "Los valores se ubican en rango intermedio, por lo que su interpretación requiere correlación con síntomas, función pulmonar, comorbilidades alérgicas, tratamiento inhalado y evolución clínica.";
   };
 
   const chartData = useMemo(
@@ -388,8 +516,12 @@ export default function App() {
       results.map((r, i) => ({
         name: `Prueba ${i + 1}`,
         Reportado: r.valid ? Number(r.selected.toFixed(1)) : null,
-        Directo: r.directFeno !== null ? Number(r.directFeno.toFixed(1)) : null,
-        Estimado: r.equationValue !== null ? Number(r.equationValue.toFixed(1)) : null,
+        Directo:
+          r.directFeno !== null ? Number(r.directFeno.toFixed(1)) : null,
+        Estimado:
+          r.equationValue !== null
+            ? Number(r.equationValue.toFixed(1))
+            : null,
       })),
     [results]
   );
@@ -398,28 +530,83 @@ export default function App() {
     const lines = [];
     lines.push("EVALUACIÓN DE INFLAMACIÓN DE LA VÍA AÉREA (FeNO)");
     lines.push("");
-    lines.push(`Nombre del paciente: ${patient.nomb("La interpretación del óxido nítrico exhalado debe integrarse con los síntomas, la función pulmonar, la presencia de atopia o rinitis y la evolución clínica.");
+    lines.push(`Nombre del paciente: ${patient.nombre || "________________"}`);
+    lines.push(`Edad: ${patient.edad || "__"} años`);
+    lines.push(`Fecha: ${patient.fecha}`);
+    lines.push("");
+    lines.push("RESULTADOS");
+
+    results.forEach((r, i) => {
+      lines.push(
+        r.valid
+          ? `- Prueba ${i + 1}: ${r.selected.toFixed(1)} ppb (${r.classSelected.label}). ${r.classSelected.summary} Fuente: ${r.selectedSource}.`
+          : `- Prueba ${i + 1}: no calculable por información incompleta.`
+      );
+    });
+
+    lines.push("");
+    lines.push("CURVA DE VALORES (ppb)");
+    lines.push(
+      chartData
+        .map((d) => `${d.name}: ${d.Reportado != null ? d.Reportado : "NA"}`)
+        .join(" | ")
+    );
+
+    lines.push("");
+    lines.push("INTERPRETACIÓN CLÍNICA");
+    lines.push(interpText(avg));
+    lines.push(
+      "La interpretación del óxido nítrico exhalado debe integrarse con los síntomas, la función pulmonar, la presencia de atopia o rinitis y la evolución clínica."
+    );
+    lines.push(
+      "Factores que pueden modificar el FeNO incluyen edad, sexo, hora del día, exposición alergénica en individuos sensibilizados, técnica y sitio de medición, broncoconstricción, menor función pulmonar y uso de corticosteroides inhalados en forma dosis-dependiente."
+    );
+
     if (longitudinal) {
       lines.push("");
       lines.push("INTERPRETACIÓN LONGITUDINAL");
-      lines.push(`Cambio entre primera y última prueba: ${longitudinal.pct.toFixed(1)}%.`);
+      lines.push(
+        `Cambio entre primera y última prueba: ${longitudinal.pct.toFixed(
+          1
+        )}%.`
+      );
     }
+
     lines.push("");
     lines.push("VALORES DE REFERENCIA");
-    lines.push(isChild ? "- Niños (<12 años): Bajo <20 ppb | Intermedio 20–35 ppb | Alto >35 ppb." : "- Adultos / ≥12 años: Bajo <25 ppb | Intermedio 25–50 ppb | Alto >50 ppb.");
+    lines.push(
+      isChild
+        ? "- Niños (<12 años): Bajo <20 ppb | Intermedio 20–35 ppb | Alto >35 ppb."
+        : "- Adultos / ≥12 años: Bajo <25 ppb | Intermedio 25–50 ppb | Alto >50 ppb."
+    );
+    lines.push(
+      "Interpretación complementaria en pacientes con ICS: valores persistentemente ≥25 ppb con dosis media o ≥20 ppb con dosis alta pueden ser clínicamente relevantes y sugerir inflamación residual o control antiinflamatorio incompleto."
+    );
+
     lines.push("");
     lines.push("REFERENCIAS");
-    lines.push("1. Dweik RA, Boggs PB, Erzurum SC, et al. Am J Respir Crit Care Med. 2011;184:602-615.");
-    lines.push("2. Fraser A, Simpson R, Turner S. Breathe. 2023;19:220236.");
+    lines.push(
+      "1. Dweik RA, Boggs PB, Erzurum SC, et al. An official ATS clinical practice guideline: interpretation of exhaled nitric oxide levels (FeNO) for clinical applications. Am J Respir Crit Care Med. 2011;184:602-615."
+    );
+    lines.push(
+      "2. Fraser A, Simpson R, Turner S. Use of exhaled nitric oxide in the diagnosis and monitoring of childhood asthma: myth or maxim? Breathe. 2023;19:220236."
+    );
+    lines.push(
+      "3. Dweik RA. Exhaled nitric oxide analysis and applications. UpToDate. Last updated Jun 30, 2025."
+    );
+
     lines.push("");
     lines.push(patient.firma);
     lines.push(patient.titulo);
     lines.push(`Registro Médico ${patient.registro}`);
+
     return lines.join("\n");
   }, [patient, results, chartData, avg, longitudinal, isChild]);
 
   const updateScenario = (idx, key, value) => {
-    setScenarios((prev) => prev.map((s, i) => (i === idx ? { ...s, [key]: value } : s)));
+    setScenarios((prev) =>
+      prev.map((s, i) => (i === idx ? { ...s, [key]: value } : s))
+    );
   };
 
   const copyTextReport = async () => {
@@ -445,12 +632,30 @@ export default function App() {
   const printPdf = () => {
     const content = reportCardRef.current?.innerHTML;
     if (!content) return;
+
     const popup = window.open("", "_blank", "width=1100,height=850");
     if (!popup) return;
-    popup.document.write(`<!doctype html><html><head><title>Informe FeNO</title><style>
-      body{font-family:Arial,Helvetica,sans-serif;margin:24px;color:#0f172a}
-      .sheet{max-width:900px;margin:0 auto}
-    </style></head><body><div class="sheet">${content}</div></body></html>`);
+
+    popup.document.write(`<!doctype html>
+      <html>
+        <head>
+          <title>Informe FeNO</title>
+          <style>
+            body {
+              font-family: Arial, Helvetica, sans-serif;
+              margin: 24px;
+              color: #0f172a;
+            }
+            .sheet {
+              max-width: 900px;
+              margin: 0 auto;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="sheet">${content}</div>
+        </body>
+      </html>`);
     popup.document.close();
     popup.focus();
     setTimeout(() => popup.print(), 500);
@@ -463,9 +668,14 @@ export default function App() {
           <div style={styles.rowBetween}>
             <div>
               <h1 style={styles.title}>App clínica para estimación de FeNO</h1>
-              <div style={styles.subtitle}>Permite usar medición directa, estimación por ecuación o ambas.</div>
+              <div style={styles.subtitle}>
+                Permite usar medición directa, estimación por ecuación o ambas.
+              </div>
             </div>
-            <div style={styles.badge}>Umbrales activos: {thresholds.label} · Bajo &lt; {thresholds.low} · Alto &gt; {thresholds.high}</div>
+            <div style={styles.badge}>
+              Umbrales activos: {thresholds.label} · Bajo &lt; {thresholds.low} ·
+              Alto &gt; {thresholds.high}
+            </div>
           </div>
         </div>
 
@@ -474,31 +684,146 @@ export default function App() {
             <div style={styles.card}>
               <h2 style={styles.sectionTitle}>Datos del paciente</h2>
               <div style={styles.fieldGrid3}>
-                <Field label="Nombre"><input style={styles.input} value={patient.nombre} onChange={(e) => setPatient({ ...patient, nombre: e.target.value })} /></Field>
-                <Field label="Edad (años)"><input type="number" style={styles.input} value={patient.edad} onChange={(e) => setPatient({ ...patient, edad: e.target.value })} /></Field>
-                <Field label="Fecha"><input type="date" style={styles.input} value={patient.fecha} onChange={(e) => setPatient({ ...patient, fecha: e.target.value })} /></Field>
+                <Field label="Nombre">
+                  <input
+                    style={styles.input}
+                    value={patient.nombre}
+                    onChange={(e) =>
+                      setPatient({ ...patient, nombre: e.target.value })
+                    }
+                  />
+                </Field>
+                <Field label="Edad (años)">
+                  <input
+                    type="number"
+                    style={styles.input}
+                    value={patient.edad}
+                    onChange={(e) =>
+                      setPatient({ ...patient, edad: e.target.value })
+                    }
+                  />
+                </Field>
+                <Field label="Fecha">
+                  <input
+                    type="date"
+                    style={styles.input}
+                    value={patient.fecha}
+                    onChange={(e) =>
+                      setPatient({ ...patient, fecha: e.target.value })
+                    }
+                  />
+                </Field>
               </div>
+
               <div style={styles.fieldGrid4}>
-                <Field label="Atopia"><select style={styles.select} value={patient.atopia ? "si" : "no"} onChange={(e) => setPatient({ ...patient, atopia: e.target.value === "si" })}><option value="si">Sí</option><option value="no">No</option></select></Field>
-                <Field label="Rinitis"><select style={styles.select} value={patient.rinitis ? "si" : "no"} onChange={(e) => setPatient({ ...patient, rinitis: e.target.value === "si" })}><option value="si">Sí</option><option value="no">No</option></select></Field>
-                <Field label="Uso de ICS"><select style={styles.select} value={patient.usaICS ? "si" : "no"} onChange={(e) => setPatient({ ...patient, usaICS: e.target.value === "si" })}><option value="si">Sí</option><option value="no">No</option></select></Field>
-                <Field label="Dosis ICS (µg budesonida/día)"><input type="number" style={styles.input} value={patient.icsDose} onChange={(e) => setPatient({ ...patient, icsDose: e.target.value })} disabled={!patient.usaICS} /></Field>
+                <Field label="Atopia">
+                  <select
+                    style={styles.select}
+                    value={patient.atopia ? "si" : "no"}
+                    onChange={(e) =>
+                      setPatient({
+                        ...patient,
+                        atopia: e.target.value === "si",
+                      })
+                    }
+                  >
+                    <option value="si">Sí</option>
+                    <option value="no">No</option>
+                  </select>
+                </Field>
+
+                <Field label="Rinitis">
+                  <select
+                    style={styles.select}
+                    value={patient.rinitis ? "si" : "no"}
+                    onChange={(e) =>
+                      setPatient({
+                        ...patient,
+                        rinitis: e.target.value === "si",
+                      })
+                    }
+                  >
+                    <option value="si">Sí</option>
+                    <option value="no">No</option>
+                  </select>
+                </Field>
+
+                <Field label="Uso de ICS">
+                  <select
+                    style={styles.select}
+                    value={patient.usaICS ? "si" : "no"}
+                    onChange={(e) =>
+                      setPatient({
+                        ...patient,
+                        usaICS: e.target.value === "si",
+                      })
+                    }
+                  >
+                    <option value="si">Sí</option>
+                    <option value="no">No</option>
+                  </select>
+                </Field>
+
+                <Field label="Dosis ICS (µg budesonida/día)">
+                  <input
+                    type="number"
+                    style={styles.input}
+                    value={patient.icsDose}
+                    onChange={(e) =>
+                      setPatient({ ...patient, icsDose: e.target.value })
+                    }
+                    disabled={!patient.usaICS}
+                  />
+                </Field>
               </div>
             </div>
 
             <div style={styles.card}>
               <div style={styles.rowBetween}>
-                <h2 style={{ ...styles.sectionTitle, marginBottom: 0 }}>Pruebas y modo de cálculo</h2>
-                <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-                  <span style={{ fontSize: 14, color: "#475569", fontWeight: 600 }}>Modo</span>
-                  <select style={{ ...styles.select, width: 260 }} value={measurementMode} onChange={(e) => setMeasurementMode(e.target.value)}>
-                    <option value="both">Ambos (prioriza medición directa)</option>
+                <h2 style={{ ...styles.sectionTitle, marginBottom: 0 }}>
+                  Pruebas y modo de cálculo
+                </h2>
+
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                    flexWrap: "wrap",
+                  }}
+                >
+                  <span
+                    style={{ fontSize: 14, color: "#475569", fontWeight: 600 }}
+                  >
+                    Modo
+                  </span>
+                  <select
+                    style={{ ...styles.select, width: 260 }}
+                    value={measurementMode}
+                    onChange={(e) => setMeasurementMode(e.target.value)}
+                  >
+                    <option value="both">
+                      Ambos (prioriza medición directa)
+                    </option>
                     <option value="direct">Solo medición directa</option>
-                    <option value="estimated">Solo estimación por ecuación</option>
+                    <option value="estimated">
+                      Solo estimación por ecuación
+                    </option>
                   </select>
-                  <span style={{ fontSize: 14, color: "#475569", fontWeight: 600 }}>Modelo</span>
-                  <select style={{ ...styles.select, width: 300 }} value={modelType} onChange={(e) => setModelType(e.target.value)}>
-                    <option value="auto">Automático (usa eosinófilos si están disponibles)</option>
+
+                  <span
+                    style={{ fontSize: 14, color: "#475569", fontWeight: 600 }}
+                  >
+                    Modelo
+                  </span>
+                  <select
+                    style={{ ...styles.select, width: 300 }}
+                    value={modelType}
+                    onChange={(e) => setModelType(e.target.value)}
+                  >
+                    <option value="auto">
+                      Automático (usa eosinófilos si están disponibles)
+                    </option>
                     <option value="basic">Modelo clínico básico</option>
                     <option value="eos">Modelo con eosinófilos</option>
                   </select>
@@ -510,24 +835,114 @@ export default function App() {
                   const r = results[idx];
                   return (
                     <div key={idx} style={styles.scenarioCard}>
-                      <h3 style={{ margin: "0 0 12px 0", fontSize: 17 }}>Prueba {idx + 1}</h3>
-                      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                        <Field label="FEV1 pre (% predicho)"><input type="number" style={styles.input} value={s.fev1Pre} onChange={(e) => updateScenario(idx, "fev1Pre", e.target.value)} /></Field>
-                        <Field label="FEV1 post (% predicho)"><input type="number" style={styles.input} value={s.fev1Post} onChange={(e) => updateScenario(idx, "fev1Post", e.target.value)} /></Field>
-                        <Field label="Eosinófilos periféricos (cél/µL, opcional)"><input type="number" style={styles.input} value={s.eos} onChange={(e) => updateScenario(idx, "eos", e.target.value)} /></Field>
-                        <Field label="FeNO directo medido con equipo (ppb, opcional)"><input type="number" style={styles.input} value={s.directFeno} onChange={(e) => updateScenario(idx, "directFeno", e.target.value)} /></Field>
+                      <h3 style={{ margin: "0 0 12px 0", fontSize: 17 }}>
+                        Prueba {idx + 1}
+                      </h3>
+
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 10,
+                        }}
+                      >
+                        <Field label="FEV1 pre (% predicho)">
+                          <input
+                            type="number"
+                            style={styles.input}
+                            value={s.fev1Pre}
+                            onChange={(e) =>
+                              updateScenario(idx, "fev1Pre", e.target.value)
+                            }
+                          />
+                        </Field>
+
+                        <Field label="FEV1 post (% predicho)">
+                          <input
+                            type="number"
+                            style={styles.input}
+                            value={s.fev1Post}
+                            onChange={(e) =>
+                              updateScenario(idx, "fev1Post", e.target.value)
+                            }
+                          />
+                        </Field>
+
+                        <Field label="Eosinófilos periféricos (cél/µL, opcional)">
+                          <input
+                            type="number"
+                            style={styles.input}
+                            value={s.eos}
+                            onChange={(e) =>
+                              updateScenario(idx, "eos", e.target.value)
+                            }
+                          />
+                        </Field>
+
+                        <Field label="FeNO directo medido con equipo (ppb, opcional)">
+                          <input
+                            type="number"
+                            style={styles.input}
+                            value={s.directFeno}
+                            onChange={(e) =>
+                              updateScenario(idx, "directFeno", e.target.value)
+                            }
+                          />
+                        </Field>
                       </div>
+
                       <div style={styles.scenarioInfo}>
                         {!r.valid ? (
-                          <span style={{ color: "#64748b" }}>Ingrese una medición directa o datos suficientes para estimación.</span>
+                          <span style={{ color: "#64748b" }}>
+                            Ingrese una medición directa o datos suficientes para
+                            estimación.
+                          </span>
                         ) : (
                           <div>
-                            <div><strong>Fuente usada:</strong> {r.selectedSource}</div>
-                            <div><strong>Valor reportado:</strong> {r.selected.toFixed(1)} ppb</div>
-                            <div><strong>Clasificación:</strong> {r.classSelected.label}</div>
-                            {r.directFeno !== null ? <div style={{ fontSize: 12, color: "#64748b", marginTop: 6 }}>Directo: {r.directFeno.toFixed(1)} ppb</div> : null}
-                            {r.equationValue !== null ? <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>Estimado: {r.equationValue.toFixed(1)} ppb</div> : null}
-                            {r.bdr !== null ? <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>BDR: {r.bdr.toFixed(1)}%</div> : null}
+                            <div>
+                              <strong>Fuente usada:</strong> {r.selectedSource}
+                            </div>
+                            <div>
+                              <strong>Valor reportado:</strong>{" "}
+                              {r.selected.toFixed(1)} ppb
+                            </div>
+                            <div>
+                              <strong>Clasificación:</strong>{" "}
+                              {r.classSelected.label}
+                            </div>
+                            {r.directFeno !== null ? (
+                              <div
+                                style={{
+                                  fontSize: 12,
+                                  color: "#64748b",
+                                  marginTop: 6,
+                                }}
+                              >
+                                Directo: {r.directFeno.toFixed(1)} ppb
+                              </div>
+                            ) : null}
+                            {r.equationValue !== null ? (
+                              <div
+                                style={{
+                                  fontSize: 12,
+                                  color: "#64748b",
+                                  marginTop: 4,
+                                }}
+                              >
+                                Estimado: {r.equationValue.toFixed(1)} ppb
+                              </div>
+                            ) : null}
+                            {r.bdr !== null ? (
+                              <div
+                                style={{
+                                  fontSize: 12,
+                                  color: "#64748b",
+                                  marginTop: 4,
+                                }}
+                              >
+                                BDR: {r.bdr.toFixed(1)}%
+                              </div>
+                            ) : null}
                           </div>
                         )}
                       </div>
@@ -540,29 +955,102 @@ export default function App() {
             <div style={styles.card}>
               <h2 style={styles.sectionTitle}>Firma y referencias</h2>
               <div style={styles.fieldGrid3}>
-                <Field label="Firma"><input style={styles.input} value={patient.firma} onChange={(e) => setPatient({ ...patient, firma: e.target.value })} /></Field>
-                <Field label="Título"><input style={styles.input} value={patient.titulo} onChange={(e) => setPatient({ ...patient, titulo: e.target.value })} /></Field>
-                <Field label="Registro médico"><input style={styles.input} value={patient.registro} onChange={(e) => setPatient({ ...patient, registro: e.target.value })} /></Field>
+                <Field label="Firma">
+                  <input
+                    style={styles.input}
+                    value={patient.firma}
+                    onChange={(e) =>
+                      setPatient({ ...patient, firma: e.target.value })
+                    }
+                  />
+                </Field>
+                <Field label="Título">
+                  <input
+                    style={styles.input}
+                    value={patient.titulo}
+                    onChange={(e) =>
+                      setPatient({ ...patient, titulo: e.target.value })
+                    }
+                  />
+                </Field>
+                <Field label="Registro médico">
+                  <input
+                    style={styles.input}
+                    value={patient.registro}
+                    onChange={(e) =>
+                      setPatient({ ...patient, registro: e.target.value })
+                    }
+                  />
+                </Field>
               </div>
             </div>
           </div>
 
           <div style={styles.rightColumn}>
             <div style={styles.card}>
-              <h2 style={styles.sectionTitle}>Curva de valores estimados de FeNO</h2>
+              <h2 style={styles.sectionTitle}>
+                Curva de valores estimados de FeNO
+              </h2>
               <div style={{ width: "100%", height: 320 }}>
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={chartData} margin={{ top: 10, right: 20, left: 10, bottom: 0 }}>
+                  <LineChart
+                    data={chartData}
+                    margin={{ top: 10, right: 20, left: 10, bottom: 0 }}
+                  >
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="name" />
-                    <YAxis domain={[0, "auto"]} label={{ value: "ppb", angle: -90, position: "insideLeft" }} />
-                    <Tooltip formatter={(value) => (value == null ? "No calculable" : `${value} ppb`)} />
+                    <YAxis
+                      domain={[0, "auto"]}
+                      label={{
+                        value: "ppb",
+                        angle: -90,
+                        position: "insideLeft",
+                      }}
+                    />
+                    <Tooltip
+                      formatter={(value) =>
+                        value == null ? "No calculable" : `${value} ppb`
+                      }
+                    />
                     <Legend />
-                    <ReferenceLine y={thresholds.low} stroke="#f59e0b" strokeDasharray="4 4" />
-                    <ReferenceLine y={thresholds.high} stroke="#ef4444" strokeDasharray="4 4" />
-                    <Line type="monotone" dataKey="Reportado" stroke="#0f172a" strokeWidth={3} dot={{ r: 5 }} connectNulls={false} />
-                    {measurementMode === "both" ? <Line type="monotone" dataKey="Directo" stroke="#2563eb" strokeWidth={2} dot={{ r: 4 }} connectNulls={false} /> : null}
-                    {measurementMode === "both" ? <Line type="monotone" dataKey="Estimado" stroke="#16a34a" strokeWidth={2} dot={{ r: 4 }} connectNulls={false} /> : null}
+                    <ReferenceLine
+                      y={thresholds.low}
+                      stroke="#f59e0b"
+                      strokeDasharray="4 4"
+                    />
+                    <ReferenceLine
+                      y={thresholds.high}
+                      stroke="#ef4444"
+                      strokeDasharray="4 4"
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="Reportado"
+                      stroke="#0f172a"
+                      strokeWidth={3}
+                      dot={{ r: 5 }}
+                      connectNulls={false}
+                    />
+                    {measurementMode === "both" ? (
+                      <Line
+                        type="monotone"
+                        dataKey="Directo"
+                        stroke="#2563eb"
+                        strokeWidth={2}
+                        dot={{ r: 4 }}
+                        connectNulls={false}
+                      />
+                    ) : null}
+                    {measurementMode === "both" ? (
+                      <Line
+                        type="monotone"
+                        dataKey="Estimado"
+                        stroke="#16a34a"
+                        strokeWidth={2}
+                        dot={{ r: 4 }}
+                        connectNulls={false}
+                      />
+                    ) : null}
                   </LineChart>
                 </ResponsiveContainer>
               </div>
@@ -570,36 +1058,61 @@ export default function App() {
 
             <div style={styles.card}>
               <h2 style={styles.sectionTitle}>Resumen clínico</h2>
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              <div
+                style={{ display: "flex", flexDirection: "column", gap: 10 }}
+              >
                 {results.map((r, i) => (
                   <div key={i} style={styles.infoBox}>
-                    {r.valid ? `Prueba ${i + 1}: ${r.selected.toFixed(1)} ppb (${r.classSelected.label}). ${r.classSelected.summary} Fuente: ${r.selectedSource}.` : `Prueba ${i + 1}: no calculable.`}
+                    {r.valid
+                      ? `Prueba ${i + 1}: ${r.selected.toFixed(1)} ppb (${r.classSelected.label}). ${r.classSelected.summary} Fuente: ${r.selectedSource}.`
+                      : `Prueba ${i + 1}: no calculable.`}
                   </div>
                 ))}
-                {longitudinal ? <div style={styles.infoBox}>Cambio entre primera y última prueba: {longitudinal.pct.toFixed(1)}%.</div> : null}
+                {longitudinal ? (
+                  <div style={styles.infoBox}>
+                    Cambio entre primera y última prueba:{" "}
+                    {longitudinal.pct.toFixed(1)}%.
+                  </div>
+                ) : null}
               </div>
             </div>
 
             <div style={styles.card}>
               <h2 style={styles.sectionTitle}>Informe listo para copiar</h2>
+
               <div ref={reportCardRef} style={styles.reportPaper}>
                 <div style={styles.reportHeader}>
                   <div>
-                    <h3 style={styles.reportTitle}>Evaluación de inflamación de la vía aérea (FeNO)</h3>
+                    <h3 style={styles.reportTitle}>
+                      Evaluación de inflamación de la vía aérea (FeNO)
+                    </h3>
                     <div style={{ ...styles.reportMeta, marginTop: 8 }}>
-                      <div><strong>Nombre del paciente:</strong> {patient.nombre || "________________"}</div>
-                      <div><strong>Edad:</strong> {patient.edad || "__"} años</div>
-                      <div><strong>Fecha:</strong> {patient.fecha}</div>
+                      <div>
+                        <strong>Nombre del paciente:</strong>{" "}
+                        {patient.nombre || "________________"}
+                      </div>
+                      <div>
+                        <strong>Edad:</strong> {patient.edad || "__"} años
+                      </div>
+                      <div>
+                        <strong>Fecha:</strong> {patient.fecha}
+                      </div>
                     </div>
                   </div>
-                  <div style={{ ...styles.badge, whiteSpace: "nowrap" }}>{thresholds.label}</div>
+                  <div style={{ ...styles.badge, whiteSpace: "nowrap" }}>
+                    {thresholds.label}
+                  </div>
                 </div>
 
                 <div style={styles.reportSection}>
                   <div style={styles.reportSectionTitle}>Resultados</div>
                   <ul style={styles.resultList}>
                     {results.map((r, i) => (
-                      <li key={i}>{r.valid ? `Prueba ${i + 1}: ${r.selected.toFixed(1)} ppb (${r.classSelected.label}). ${r.classSelected.summary} Fuente: ${r.selectedSource}.` : `Prueba ${i + 1}: no calculable por información incompleta.`}</li>
+                      <li key={i}>
+                        {r.valid
+                          ? `Prueba ${i + 1}: ${r.selected.toFixed(1)} ppb (${r.classSelected.label}). ${r.classSelected.summary} Fuente: ${r.selectedSource}.`
+                          : `Prueba ${i + 1}: no calculable por información incompleta.`}
+                      </li>
                     ))}
                   </ul>
                 </div>
@@ -608,59 +1121,155 @@ export default function App() {
                   <div style={styles.reportSectionTitle}>Curva de valores</div>
                   <div style={{ width: "100%", height: 250 }}>
                     <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={chartData} margin={{ top: 10, right: 20, left: 10, bottom: 0 }}>
+                      <LineChart
+                        data={chartData}
+                        margin={{ top: 10, right: 20, left: 10, bottom: 0 }}
+                      >
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="name" />
                         <YAxis domain={[0, "auto"]} />
-                        <Tooltip formatter={(value) => (value == null ? "No calculable" : `${value} ppb`)} />
+                        <Tooltip
+                          formatter={(value) =>
+                            value == null ? "No calculable" : `${value} ppb`
+                          }
+                        />
                         <Legend />
-                        <ReferenceLine y={thresholds.low} stroke="#f59e0b" strokeDasharray="4 4" />
-                        <ReferenceLine y={thresholds.high} stroke="#ef4444" strokeDasharray="4 4" />
-                        <Line type="monotone" dataKey="Reportado" stroke="#0f172a" strokeWidth={3} dot=<p style={{ ...styles.para, marginTop: 8 }}>La interpretación del óxido nítrico exhalado debe integrarse con los síntomas, la función pulmonar, la presencia de atopia o rinitis y la evolución clínica.</p>
-                  <p style={{ ...styles.para, marginTop: 8 }}>Factores que pueden modificar el FeNO incluyen edad, sexo, hora del día, exposición alergénica en individuos sensibilizados, técnica y sitio de medición, broncoconstricción, menor función pulmonar y uso de corticosteroides inhalados en forma dosis-dependiente.</p>ull}
-                        {measurementMode === "both" ? <Line type="monotone" dataKey="Estimado" stroke="#16a34a" strokeWidth={2} dot={{ r: 4 }} connectNulls={false} /> : null}
+                        <ReferenceLine
+                          y={thresholds.low}
+                          stroke="#f59e0b"
+                          strokeDasharray="4 4"
+                        />
+                        <ReferenceLine
+                          y={thresholds.high}
+                          stroke="#ef4444"
+                          strokeDasharray="4 4"
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="Reportado"
+                          stroke="#0f172a"
+                          strokeWidth={3}
+                          dot={{ r: 5 }}
+                          connectNulls={false}
+                        />
+                        {measurementMode === "both" ? (
+                          <Line
+                            type="monotone"
+                            dataKey="Directo"
+                            stroke="#2563eb"
+                            strokeWidth={2}
+                            dot={{ r: 4 }}
+                            connectNulls={false}
+                          />
+                        ) : null}
+                        {measurementMode === "both" ? (
+                          <Line
+                            type="monotone"
+                            dataKey="Estimado"
+                            stroke="#16a34a"
+                            strokeWidth={2}
+                            dot={{ r: 4 }}
+                            connectNulls={false}
+                          />
+                        ) : null}
                       </LineChart>
                     </ResponsiveContainer>
                   </div>
                 </div>
 
                 <div style={styles.reportSection}>
-                  <div style={styles.reportSectionTitle}>Interpretación clínica</div>
+                  <div style={styles.reportSectionTitle}>
+                    Interpretación clínica
+                  </div>
                   <p style={styles.para}>{interpText(avg)}</p>
-                  <p style={{ ...styles.para, marginTop: 8 }}>La interpretación del óxido nítrico exhalado debe integrarse con los síntomas, la función pulmonar, la presencia de atopia o rinitis y la evolución clínica.</p>
+                  <p style={{ ...styles.para, marginTop: 8 }}>
+                    La interpretación del óxido nítrico exhalado debe integrarse
+                    con los síntomas, la función pulmonar, la presencia de
+                    atopia o rinitis y la evolución clínica.
+                  </p>
+                  <p style={{ ...styles.para, marginTop: 8 }}>
+                    Factores que pueden modificar el FeNO incluyen edad, sexo,
+                    hora del día, exposición alergénica en individuos
+                    sensibilizados, técnica y sitio de medición, broncoconstricción,
+                    menor función pulmonar y uso de corticosteroides inhalados
+                    en forma dosis-dependiente.
+                  </p>
                 </div>
 
                 {longitudinal ? (
                   <div style={styles.reportSection}>
-                    <div style={styles.reportSectionTitle}>Interpretación longitudinal</div>
-                    <p style={styles.para}><strong>Cambio entre primera y última prueba:</strong> {longitudinal.pct.toFixed(1)}%.</p>
+                    <div style={styles.reportSectionTitle}>
+                      Interpretación longitudinal
+                    </div>
+                    <p style={styles.para}>
+                      <strong>Cambio entre primera y última prueba:</strong>{" "}
+                      {longitudinal.pct.toFixed(1)}%.
+                    </p>
                   </div>
                 ) : null}
 
                 <div style={styles.reportSection}>
-                  <div style={styles.reportSectionTitle}>Valores de referencia</div>
-                  <p style={styles.para}>{isChild ? "Niños (<12 años): Bajo <20 ppb | Intermedio 20–35 ppb | Alto >35 ppb." : "Adultos / ≥12 años: Bajo <25 ppb | Intermedio 25–50 ppb | Alto >50 ppb."}</p>
+                  <div style={styles.reportSectionTitle}>
+                    Valores de referencia
+                  </div>
+                  <p style={styles.para}>
+                    {isChild
+                      ? "Niños (<12 años): Bajo <20 ppb | Intermedio 20–35 ppb | Alto >35 ppb."
+                      : "Adultos / ≥12 años: Bajo <25 ppb | Intermedio 25–50 ppb | Alto >50 ppb."}
+                  </p>
+                  <p style={{ ...styles.para, marginTop: 8 }}>
+                    Interpretación complementaria en pacientes con ICS: valores
+                    persistentemente ≥25 ppb con dosis media o ≥20 ppb con dosis
+                    alta pueden ser clínicamente relevantes y sugerir inflamación
+                    residual o control antiinflamatorio incompleto.
+                  </p>
                 </div>
 
                 <div style={styles.reportSection}>
                   <div style={styles.reportSectionTitle}>Referencias</div>
                   <ol style={styles.resultList}>
-                    <li>Dweik RA, Boggs PB, Erzurum SC, et al. <em>An official ATS clinical practice guideline: interpretation of exhaled nitric oxide levels (FeNO) for clinical applications</em>. Am J Respir Crit Care Med. 2011;184:602-615.</li>
-                    <li>Fraser A, Simpson R, Turner S. <em>Use of exhaled nitric oxide in the diagnosis and monitoring of childhood asthma: myth or maxim?</em> Breathe. 2023;19:220236.</li>
+                    <li>
+                      Dweik RA, Boggs PB, Erzurum SC, et al.{" "}
+                      <em>
+                        An official ATS clinical practice guideline:
+                        interpretation of exhaled nitric oxide levels (FeNO) for
+                        clinical applications
+                      </em>
+                      . Am J Respir Crit Care Med. 2011;184:602-615.
+                    </li>
+                    <li>
+                      Fraser A, Simpson R, Turner S.{" "}
+                      <em>
+                        Use of exhaled nitric oxide in the diagnosis and
+                        monitoring of childhood asthma: myth or maxim?
+                      </em>
+                      . Breathe. 2023;19:220236.
+                    </li>
+                    <li>
+                      Dweik RA. <em>Exhaled nitric oxide analysis and applications</em>. UpToDate. Last updated Jun 30, 2025.
+                    </li>
                   </ol>
                 </div>
 
                 <div style={styles.footer}>
-                  <strong>{patient.firma}</strong><br />
-                  {patient.titulo}<br />
+                  <strong>{patient.firma}</strong>
+                  <br />
+                  {patient.titulo}
+                  <br />
                   Registro Médico {patient.registro}
                 </div>
               </div>
 
               <div style={styles.buttonRow}>
-                <button onClick={copyTextReport} style={styles.btnPrimary}>Copiar informe (texto)</button>
-                <button onClick={copyHtmlReport} style={styles.btnSecondary}>Copiar informe (HTML)</button>
-                <button onClick={printPdf} style={styles.btnSecondary}>Descargar / imprimir PDF</button>
+                <button onClick={copyTextReport} style={styles.btnPrimary}>
+                  Copiar informe (texto)
+                </button>
+                <button onClick={copyHtmlReport} style={styles.btnSecondary}>
+                  Copiar informe (HTML)
+                </button>
+                <button onClick={printPdf} style={styles.btnSecondary}>
+                  Descargar / imprimir PDF
+                </button>
               </div>
 
               <div style={styles.reportBox}>{reportText}</div>
